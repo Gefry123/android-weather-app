@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">Weather App</string>
+    <string name="show_weather">Show Weather</string>
+    <string name="enter_location">Enter location</string>
+    <string-array name="forecast_array">
+        <item>Today</item>
+        <item>Tomorrow</item>
+    </string-array>
 </resources>
