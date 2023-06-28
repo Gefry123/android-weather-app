@@ -10,6 +10,11 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -26,10 +31,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         locationInput = findViewById(R.id.location_input);
-        forecastSpinner = findViewById(R.id.forecast_spinner);
-        resultView = findViewById(R.id.result);
+       // forecastSpinner = findViewById(R.id.forecast_spinner);
+       // resultView = findViewById(R.id.result);
 
-        forecastSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+   /*   forecastSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 selectedForecast = (String) parent.getItemAtPosition(position);
@@ -38,11 +43,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
             }
-        });
+        });*/
     }
     public void showWeather(View view) {
-        CITY = locationInput.getText().toString();
-//        String myURL = "https://api.openweathermap.org/data/2.5/weather?q=" + CITY +API;
+        CITY = locationInput.getText().toString().trim();
+        String myURL = "https://api.openweathermap.org/data/2.5/weather?q=" + CITY + API;
 
 //        new weatherTask().execute();
 
@@ -124,4 +129,5 @@ public class MainActivity extends AppCompatActivity {
 //
 //        }
 //    }
+
 }
