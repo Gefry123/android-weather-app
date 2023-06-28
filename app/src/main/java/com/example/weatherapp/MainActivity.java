@@ -25,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
     private String selectedForecast;
     private TextView resultView;
     String CITY;
-    String API = "59f089250c5fc563637f3af51b77123d";
+    
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
