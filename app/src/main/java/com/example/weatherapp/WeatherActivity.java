@@ -1,26 +1,43 @@
 package com.example.weatherapp;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 public class WeatherActivity extends AppCompatActivity {
+    private final String TAG = "WeatherActivity";
     String CITY;
-    String API = "add the key here";
+    String API = "59f089250c5fc563637f3af51b77123d";
     String choice;
     TextView addressTxt,  statusTxt, tempTxt, temp_minTxt, temp_maxTxt, sunriseTxt,
             sunsetTxt, windTxt, pressureTxt, humidityTxt;
+    ImageButton settingsBttn;
+    ConstraintLayout relaLay;
 
-    RelativeLayout relaLay;
+    private Toolbar toolbar;
+    private String temperature_unit;
+
+    private String temp;
+    private String tempMin;
+    private String tempMax;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,11 +47,12 @@ public class WeatherActivity extends AppCompatActivity {
         CITY = intent.getStringExtra("City");
         choice = intent.getStringExtra("choose");
         Log.d("is it working the intent ", CITY);
-        Log.d("is it working the intent ", choice);
+        //Log.d("is it working the intent ", choice);
 
 
         addressTxt = findViewById(R.id.address);
         statusTxt = findViewById(R.id.status);
+        settingsBttn = findViewById(R.id.weather_settings_bttn);
         tempTxt = findViewById(R.id.temp);
         temp_minTxt = findViewById(R.id.temp_min);
         temp_maxTxt = findViewById(R.id.temp_max);
@@ -47,7 +65,66 @@ public class WeatherActivity extends AppCompatActivity {
 //        humidityTxt = findViewById(R.id.humidity);
 
         new weatherTask().execute();
+
+
+
+        //SETTINGS TOOLBAR
+        toolbar = findViewById(R.id.weather_toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        // Load the preferences from the XML resource
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        //Get the stored temperature preference
+        temperature_unit = sharedPreferences.getString("temperature", "");
+        //Listener for settings button
+        settingsBttn.setOnClickListener(v -> {
+            Intent settingsIntent = new Intent(this, SettingsActivity.class);
+            startActivity(settingsIntent);
+        });
+
+
+
     }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == android.R.id.home) {
+            // Handle the click event of the back button
+            onBackPressed();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+    protected void onResume() {
+        super.onResume();
+        // Load the preferences from the XML resource
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        //Get the stored temperature preference
+        String newTemperature_unit = sharedPreferences.getString("temperature", "");
+        //change preferences dynamically
+        if (!temperature_unit.equals(newTemperature_unit)) {
+            temperature_unit = newTemperature_unit;
+            tempTxt.setText(getTemperatureUnit(temp));
+            temp_minTxt.setText("Min Temp: " + getTemperatureUnit(tempMin));
+            temp_maxTxt.setText("Max Temp: " + getTemperatureUnit(tempMax));
+        }
+
+    }
+    //METHOD TO SET TO CHANGE TEMPERATURE UNIT BASE ON PREFERENCE SELECTED
+    private String getTemperatureUnit(String temperature){
+        Log.d(TAG, "Inside getTemperatureUnit");
+
+        if(temperature_unit.equalsIgnoreCase("fahrenheit")) {
+            double fah = Double.parseDouble(temperature);
+            fah = (fah * 1.8) + 32;
+            return ((int) Math.round(fah)) + " °F";
+        }
+        else{
+            double cel = Double.parseDouble(temperature);
+            return ((int) Math.round(cel)) + " °C";
+        }
+    }
+
 
 
 
@@ -78,25 +155,31 @@ public class WeatherActivity extends AppCompatActivity {
                 JSONObject wind = jsonObj.getJSONObject("wind");
                 JSONObject weather = jsonObj.getJSONArray("weather").getJSONObject(0);
 
-                String temp = main.getString("temp");
-                double fah = Double.parseDouble(temp);
-                //calculation for fahrenheight need to make a class better
-                fah = (fah * 1.8) + 32;
-                //rounding the value
-                temp = ((int) Math.round(fah)) + " °F";
-                        //+ "°C"
-                // turn the tempMin into fahrenheit
-               // String tempMin = "Min Temp: " + main.getString("temp_min") + "°C";
-                double min =  Double.parseDouble(main.getString("temp_min"));
-                min = (min * 1.8) + 32;
-                String tempMin = "Min Temp: " + ((int) Math.round(min)) + "°F";
+                temp = main.getString("temp");
+                tempMin = main.getString("temp_min");
+                tempMax = main.getString("temp_max");
 
-                // turn the max temp into fahrenheit
-                //String tempMax = "Max Temp: " + main.getString("temp_max") + "°C";
+                //These code can be deleted, getTemperatureUnit method does the calculations
+                /*{
+                    double fah = Double.parseDouble(temp);
+                    //calculation for fahrenheight need to make a class better
+                    fah = (fah * 1.8) + 32;
+                    //rounding the value
+                    temp = ((int) Math.round(fah)) + " °F";
+                    //+ "°C"*/
+                    // turn the tempMin into fahrenheit
+                    // String tempMin = "Min Temp: " + main.getString("temp_min") + "°C";
+                    //  double min =  Double.parseDouble(main.getString("temp_min"));
+                    //     min = (min * 1.8) + 32;
+                    // String tempMin = "Min Temp: " + ((int) Math.round(min)) + "°F";
 
-                double max = Double.parseDouble(main.getString("temp_max"));
-                max = (max * 1.8) + 32;
-                String tempMax = "Max Temp: " + ((int) Math.round(max)) + "°F";
+                    // turn the max temp into fahrenheit
+                    //String tempMax = "Max Temp: " + main.getString("temp_max") + "°C";
+
+                    //  double max = Double.parseDouble(main.getString("temp_max"));
+                    //  max = (max * 1.8) + 32;
+                    //String tempMax = "Max Temp: " + ((int) Math.round(max)) + "°F";
+               // }
                 String pressure = main.getString("pressure");
                 String humidity = main.getString("humidity");
 
@@ -126,12 +209,12 @@ public class WeatherActivity extends AppCompatActivity {
 
 
                 /* Populating extracted data into our views */
-                addressTxt.setText(address);
 
-                statusTxt.setText(weatherDescription.toUpperCase());
-                tempTxt.setText(temp);
-                temp_minTxt.setText(tempMin);
-                temp_maxTxt.setText(tempMax);
+                    addressTxt.setText(address);
+                    statusTxt.setText(weatherDescription.toUpperCase());
+                    tempTxt.setText(getTemperatureUnit(temp));
+                    temp_minTxt.setText("Min Temp: " + getTemperatureUnit(tempMin));
+                    temp_maxTxt.setText("Max Temp: " + getTemperatureUnit(tempMax));
 //                sunriseTxt.setText(new SimpleDateFormat("hh:mm a", Locale.ENGLISH).format(new Date(sunrise * 1000)));
 //                sunsetTxt.setText(new SimpleDateFormat("hh:mm a", Locale.ENGLISH).format(new Date(sunset * 1000)));
 //                windTxt.setText(windSpeed);
@@ -139,6 +222,7 @@ public class WeatherActivity extends AppCompatActivity {
 //                humidityTxt.setText(humidity);
 
 //                resultView.setText(windSpeed);
+
                 /* Views populated, Hiding the loader, Showing the main design */
                 findViewById(R.id.loader).setVisibility(View.GONE);
 
@@ -150,4 +234,5 @@ public class WeatherActivity extends AppCompatActivity {
 
         }
     }
+
 }

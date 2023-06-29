@@ -7,6 +7,12 @@
         <item>Tomorrow</item>
     </string-array>
 
+
+    <string name="menu_open">Open</string>
+    <string name="menu_close">Close</string>
+
+
+
     <string-array name="temperature_units">
         <item>Fahrenheit</item>
         <item>Celsius</item>
@@ -15,4 +21,5 @@
         <item>fahrenheit</item>
         <item>celsius</item>
     </string-array>
+
 </resources>

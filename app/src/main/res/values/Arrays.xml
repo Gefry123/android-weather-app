@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="temperature_array">
+        <item>Fahrenheit</item>
+        <item>Celsius</item>
+    </string-array>
+    <string-array name="temperature_array_values">
+        <item>fahrenheit</item>
+        <item>celsius</item>
+    </string-array>
+
+</resources>

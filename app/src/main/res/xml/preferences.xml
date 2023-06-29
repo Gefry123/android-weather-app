@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <PreferenceCategory android:title="General Settings">
+        <ListPreference
+            android:key="temperature"
+            android:title="Temperature Unit"
+            app:useSimpleSummaryProvider="true"
+            android:defaultValue="fahrenheit"
+            app:entries="@array/temperature_array"
+            app:entryValues="@array/temperature_array_values"/>
+    </PreferenceCategory>
+
+
+
+</PreferenceScreen>
