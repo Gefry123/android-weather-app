@@ -6,7 +6,7 @@
             android:key="temperature"
             android:title="Temperature Unit"
             app:useSimpleSummaryProvider="true"
-            android:defaultValue="Fahrenheit"
+            android:defaultValue="fahrenheit"
             app:entries="@array/temperature_array"
             app:entryValues="@array/temperature_array_values"/>
     </PreferenceCategory>

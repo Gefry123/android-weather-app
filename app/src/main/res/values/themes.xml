@@ -8,6 +8,7 @@
     <style name="Theme.WeatherApp" parent="Base.Theme.WeatherApp" >
         <!-- Remove unsupported theme features -->
         <item name="windowActionBar">false</item>
+        <item name="android:windowFullscreen">true</item>
         <item name="windowNoTitle">true</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
     </style>

@@ -68,11 +68,19 @@ public class MainActivity extends AppCompatActivity {
             }
         });*/
 
+
+        //CODE FOR PREFERENCES TO CHANGE CELSIUS TO FAHRENHEIT
+        // Load the preferences from the XML resource
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        //Get the stored temperature preference
+        temperature_unit = sharedPreferences.getString("temperature", "");
+        //Set the temperature based on selected preference
+
         //ADD BUTTON CODE FOR LISTENERS --- SENT VALUES TO WeatherActivity
         addButton.setOnClickListener(v -> {
             CITY = locationInput.getText().toString().trim();
             Intent intent = new Intent(this, WeatherActivity.class);
-            intent.putExtra("CityName", CITY);
+            intent.putExtra("City", CITY);
             startActivity(intent);
         });
 
@@ -111,12 +119,16 @@ public class MainActivity extends AppCompatActivity {
             drawerLayout.closeDrawers();
             return true;
         });
-        //CODE FOR PREFERENCES TO CHANGE CELSIUS TO FAHRENHEIT
+
+
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
         // Load the preferences from the XML resource
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         //Get the stored temperature preference
         temperature_unit = sharedPreferences.getString("temperature", "");
-        //Set the temperature based on selected preference
 
     }
 

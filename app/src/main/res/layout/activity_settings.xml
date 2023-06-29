@@ -10,7 +10,7 @@
         android:id="@+id/settings_toolbar"
         android:layout_width="match_parent"
         app:title="Settings"
-        android:layout_height="wrap_content"
+        android:layout_height="?attr/actionBarSize"
         android:background="@android:color/transparent"
         android:minHeight="?attr/actionBarSize"
         android:theme="@style/Theme.WeatherApp"
