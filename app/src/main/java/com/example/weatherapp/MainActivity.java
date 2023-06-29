@@ -17,6 +17,9 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentManager;
 
+
+//import android.app.NotificationManager;
+
 import com.google.android.material.navigation.NavigationView;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -53,6 +56,36 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         addButton = findViewById(R.id.add_button);
         locationInput = findViewById(R.id.location_input);
+
+
+//adding a notification
+
+  /*        notifyBtn = findViewById(R.id.notify_btn);
+//added a  notification button
+        notifyBtn.setOnClickListener(new View.OnClickListener(){
+
+
+  public void onClick(View v){
+
+                NotificationCompat.Builder builder = new NotificationCompat.Builder(MainActivity.this,"MY Notification")
+                builder.setContentTitle("From WeatherApp");
+                builder.setContentText("Heading somewhere ? Check the weather forecast for your current location.");
+                builder.setSmallIcon(R.drawable.ic_launcher_background);
+                        builder.setAutoCancel(true);
+
+
+                NotificationManagerCompat managerCompat = NotificationManagerCompat.from(MainActivity.this);
+               // managerCompat.notify(1, builder.build());
+        }
+
+    }  */
+
+        
+
+
+
+
+        
 
         // forecastSpinner = findViewById(R.id.forecast_spinner);
         // resultView = findViewById(R.id.result);
