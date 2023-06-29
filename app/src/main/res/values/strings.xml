@@ -6,4 +6,9 @@
         <item>Today</item>
         <item>Tomorrow</item>
     </string-array>
+
+    <string name="menu_open">Open</string>
+    <string name="menu_close">Close</string>
+
+
 </resources>
