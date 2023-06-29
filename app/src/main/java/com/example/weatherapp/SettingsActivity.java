@@ -20,63 +20,34 @@ public class SettingsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
-
-import android.os.Bundle;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.preference.PreferenceFragmentCompat;
-
-public class SettingsActivity extends AppCompatActivity {
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_settings);
+                //SETTINGS TOOLBAR
+                toolbar = findViewById(R.id.settings_toolbar);
+                setSupportActionBar(toolbar);
+                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.settings_container, new SettingsFragment())
-                .commit();
-
-
-        //SETTINGS TOOLBAR
-        toolbar = findViewById(R.id.settings_toolbar);
-        setSupportActionBar(toolbar);
-         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-
-
-    }
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == android.R.id.home) {
-            // Handle the click event of the back button
-            onBackPressed();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-        public static class SettingsFragment extends PreferenceFragmentCompat {
-            private String TAG = "SettingsFragment";
+            }
 
             @Override
-            public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-                Log.d(TAG, "Inside onCreatePreferences method");
-                setPreferencesFromResource(R.xml.preferences, rootKey);
+            public boolean onOptionsItemSelected(MenuItem item) {
+                int id = item.getItemId();
+                if (id == android.R.id.home) {
+                    // Handle the click event of the back button
+                    onBackPressed();
+                    return true;
+                }
+                return super.onOptionsItemSelected(item);
             }
-        }
+
+            public static class SettingsFragment extends PreferenceFragmentCompat {
+                private String TAG = "SettingsFragment";
+
+                @Override
+                public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
+                    Log.d(TAG, "Inside onCreatePreferences method");
+                    setPreferencesFromResource(R.xml.preferences, rootKey);
+                }
+            }
+
 
     }
-      
-    }
-
-    public static class SettingsFragment extends PreferenceFragmentCompat {
-        @Override
-        public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-            setPreferencesFromResource(R.xml.settings, rootKey);
-        }
-    }
-}
-
