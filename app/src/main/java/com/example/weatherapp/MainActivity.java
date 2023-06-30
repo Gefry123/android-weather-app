@@ -159,6 +159,7 @@ public class MainActivity extends AppCompatActivity {
             CitiesItems city = new CitiesItems(cityName.trim(), temperature.trim(), image.trim());
             System.out.println(city.getCITY() + " " + city.getTemperature() + " " + city.getIconUrl());
             citiesItemsList.add(city);
+            setupRecyclerView();
         }
     }
 
