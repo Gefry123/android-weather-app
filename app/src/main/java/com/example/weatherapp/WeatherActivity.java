@@ -133,9 +133,6 @@ public class WeatherActivity extends AppCompatActivity {
         protected void onPreExecute() {
             super.onPreExecute();
 
-            /* Showing the ProgressBar if the api takes awhile */
-            findViewById(R.id.loader).setVisibility(View.VISIBLE);
-            findViewById(R.id.errorText).setVisibility(View.GONE);
         }
 
         protected String doInBackground(String... args) {
@@ -159,27 +156,6 @@ public class WeatherActivity extends AppCompatActivity {
                 tempMin = main.getString("temp_min");
                 tempMax = main.getString("temp_max");
 
-                //These code can be deleted, getTemperatureUnit method does the calculations
-                /*{
-                    double fah = Double.parseDouble(temp);
-                    //calculation for fahrenheight need to make a class better
-                    fah = (fah * 1.8) + 32;
-                    //rounding the value
-                    temp = ((int) Math.round(fah)) + " °F";
-                    //+ "°C"*/
-                    // turn the tempMin into fahrenheit
-                    // String tempMin = "Min Temp: " + main.getString("temp_min") + "°C";
-                    //  double min =  Double.parseDouble(main.getString("temp_min"));
-                    //     min = (min * 1.8) + 32;
-                    // String tempMin = "Min Temp: " + ((int) Math.round(min)) + "°F";
-
-                    // turn the max temp into fahrenheit
-                    //String tempMax = "Max Temp: " + main.getString("temp_max") + "°C";
-
-                    //  double max = Double.parseDouble(main.getString("temp_max"));
-                    //  max = (max * 1.8) + 32;
-                    //String tempMax = "Max Temp: " + ((int) Math.round(max)) + "°F";
-               // }
                 String pressure = main.getString("pressure");
                 String humidity = main.getString("humidity");
 
@@ -223,13 +199,10 @@ public class WeatherActivity extends AppCompatActivity {
 
 //                resultView.setText(windSpeed);
 
-                /* Views populated, Hiding the loader, Showing the main design */
-                findViewById(R.id.loader).setVisibility(View.GONE);
 
 
             } catch (JSONException e) {
-                findViewById(R.id.loader).setVisibility(View.GONE);
-                findViewById(R.id.errorText).setVisibility(View.VISIBLE);
+                e.printStackTrace();
             }
 
         }

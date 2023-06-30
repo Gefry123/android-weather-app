@@ -11,4 +11,14 @@
     <string name="menu_close">Close</string>
 
 
+
+    <string-array name="temperature_units">
+        <item>Fahrenheit</item>
+        <item>Celsius</item>
+    </string-array>
+    <string-array name="temperature_units_values">
+        <item>fahrenheit</item>
+        <item>celsius</item>
+    </string-array>
+
 </resources>

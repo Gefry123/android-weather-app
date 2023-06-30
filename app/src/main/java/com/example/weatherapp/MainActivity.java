@@ -2,40 +2,39 @@ package com.example.weatherapp;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageButton;
-import android.widget.Spinner;
 import android.widget.TextView;
+import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.FragmentManager;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+//import android.app.NotificationManager;
 
 import com.google.android.material.navigation.NavigationView;
-import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.Collections;
 
 
 public class MainActivity extends AppCompatActivity {
 
     private AutoCompleteTextView locationInput;
-   // private Spinner forecastSpinner;
-    private String selectedForecast;
-    private TextView resultView;
-    ImageButton addButton;
-    String CITY;
-    String API = "59f089250c5fc563637f3af51b77123d";
-    String myURL = "https://api.openweathermap.org/data/2.5/weather?q=";
+    private ImageButton addButton;
+    private String CITY;
+    private final String API = "59f089250c5fc563637f3af51b77123d";
 
     //DRAWER NAVIGATION VARIABLES
     private DrawerLayout drawerLayout;
@@ -44,8 +43,22 @@ public class MainActivity extends AppCompatActivity {
     private ActionBarDrawerToggle actionBarDrawerToggle;
     //TEMPERATURE UNIT
     private String temperature_unit;
-    private DecimalFormat df = new DecimalFormat("#.##");
+    private ArrayList<CitiesItems> citiesItemsList;
+    private RecyclerView recyclerView;
+    private RecyclerViewAdapter adapter;
 
+    private String temp;
+
+    TextView addressTxt,  statusTxt, tempTxt, temp_minTxt, temp_maxTxt, sunriseTxt,
+            sunsetTxt, windTxt, pressureTxt, humidityTxt;
+
+    private String icon;
+
+    private final String TAG ="MainActivity";
+    private String address;
+    private ItemTouchHelper itemTouchHelper;
+    private int dragDirections = ItemTouchHelper.LEFT |ItemTouchHelper.RIGHT | ItemTouchHelper.UP | ItemTouchHelper.DOWN;
+    private int swipeDirections = ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -54,19 +67,7 @@ public class MainActivity extends AppCompatActivity {
         addButton = findViewById(R.id.add_button);
         locationInput = findViewById(R.id.location_input);
 
-        // forecastSpinner = findViewById(R.id.forecast_spinner);
-        // resultView = findViewById(R.id.result);
 
-   /*   forecastSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                selectedForecast = (String) parent.getItemAtPosition(position);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
-        });*/
 
 
         //CODE FOR PREFERENCES TO CHANGE CELSIUS TO FAHRENHEIT
@@ -120,19 +121,63 @@ public class MainActivity extends AppCompatActivity {
             return true;
         });
 
+        //FOR DRAG AND SWIPE CARDVIEWS
+        itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(dragDirections, swipeDirections) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                int from = viewHolder.getAdapterPosition();
+                int to = target.getAbsoluteAdapterPosition();
+                Collections.swap(citiesItemsList,from, to);
+                adapter.notifyItemMoved(from, to);
+                return false;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                citiesItemsList.remove(viewHolder.getAbsoluteAdapterPosition());
+                adapter.notifyItemRemoved(viewHolder.getAbsoluteAdapterPosition());
+            }
+        });
+
+        //CODE FOR RECYCLERVIEW
+
+
+        setupRecyclerView();
+        new weatherTask().execute();
 
     }
+
+    private void setUpCitiesItems(String cityName, String temperature, String image) {
+        Log.d(TAG, "inside setUpCitiesItems");
+
+        if (cityName != null && temperature != null && image != null) {
+            for (CitiesItems newCity : citiesItemsList) {
+                if (newCity.getCITY().equals(cityName)) {
+                    newCity.setTemperature(temperature);
+                    newCity.setIconUrl(image);
+                    setupRecyclerView();
+                    return;
+                }
+            }
+            CitiesItems city = new CitiesItems(cityName.trim(), temperature.trim(), image.trim());
+            System.out.println(city.getCITY() + " " + city.getTemperature() + " " + city.getIconUrl());
+            citiesItemsList.add(city);
+        }
+    }
+
     @Override
     protected void onResume() {
+        Log.d(TAG, "INSIDE onResume method");
         super.onResume();
         // Load the preferences from the XML resource
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         //Get the stored temperature preference
         temperature_unit = sharedPreferences.getString("temperature", "");
+        System.out.println(temperature_unit);
 
+
+        new weatherTask().execute();
     }
-
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -142,90 +187,91 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    //METHOD TO SET TO CHANGE TEMPERATURE UNIT BASE ON PREFERENCE SELECTED
+    private String getTemperatureUnit(String temperature){
 
-   /* public void showWeather(View view) {
-        CITY = locationInput.getText().toString().trim();
-        String myURL = "https://api.openweathermap.org/data/2.5/weather?q=" + CITY + API;
-     // new weatherTask().execute();
-
-        if ("Today".equals(selectedForecast)) {
-            Intent intent = new Intent(this, WeatherActivity.class);
-            String message = CITY;
-            intent.putExtra("City", message);
-            intent.putExtra("choose", "Today");
-            startActivity(intent);
-            // get weather for today
-        } else {
-
-            Intent intent = new Intent(this, WeatherActivity.class);
-            String message = CITY;
-            intent.putExtra("City", message);
-            intent.putExtra("choose", "Tomorrow");
-            startActivity(intent);
-            // get weather for tomorrow
+        if(temperature_unit.equalsIgnoreCase("fahrenheit")) {
+            double fah = Double.parseDouble(temperature);
+            fah = (fah * 1.8) + 32;
+            return ((int) Math.round(fah)) + " °F";
         }
-        // give location an start weather activity
-//        intent.putExtra("location", location);
-//        startActivity(intent);
+        else{
+            double cel = Double.parseDouble(temperature);
+            return ((int) Math.round(cel)) + " °C";
+        }
+    }
+    //METHOD TO SETUP ADAPTER
+    private void setupRecyclerView() {
+        Log.d(TAG, "INSIDE setupRecyclerView method");
+        if(citiesItemsList ==null){
+            citiesItemsList = new ArrayList<>();
+        }
+
+        recyclerView = findViewById(R.id.mRecyclerView);
+
+        //itemTouchHelper.attachToRecyclerView(recyclerView);
+
+        adapter = new RecyclerViewAdapter(this, citiesItemsList);
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
 
-//    class weatherTask extends AsyncTask<String, Void, String> {
-//        @Override
-//        protected void onPreExecute() {
-//            super.onPreExecute();
-//
-//            /* Showing the ProgressBar, Making the main design GONE */
-//            findViewById(R.id.loader).setVisibility(View.VISIBLE);
-//            findViewById(R.id.errorText).setVisibility(View.GONE);
-//        }
-//
-//        protected String doInBackground(String... args) {
-//            String response = HttpRequest.excuteGet("https://api.openweathermap.org/data/2.5/weather?q=" + CITY + "&units=metric&appid=" + API);
-//            return response;
-//        }
-//
-//        @Override
-//        protected void onPostExecute(String result) {
-//
-//
-//            try {
-//                JSONObject jsonObj = new JSONObject(result);
-//                JSONObject main = jsonObj.getJSONObject("main");
-//                JSONObject sys = jsonObj.getJSONObject("sys");
-//                JSONObject wind = jsonObj.getJSONObject("wind");
-//                JSONObject weather = jsonObj.getJSONArray("weather").getJSONObject(0);
-//
-//                Long updatedAt = jsonObj.getLong("dt");
-//                String updatedAtText = "Updated at: " + new SimpleDateFormat("dd/MM/yyyy hh:mm a", Locale.ENGLISH).format(new Date(updatedAt * 1000));
-//                String temp = main.getString("temp") + "°C";
-//                String tempMin = "Min Temp: " + main.getString("temp_min") + "°C";
-//                String tempMax = "Max Temp: " + main.getString("temp_max") + "°C";
-//                String pressure = main.getString("pressure");
-//                String humidity = main.getString("humidity");
-//
-//                Long sunrise = sys.getLong("sunrise");
-//                Long sunset = sys.getLong("sunset");
-//                String windSpeed = wind.getString("speed");
-//                String weatherDescription = weather.getString("description");
-//
-//                String address = jsonObj.getString("name") + ", " + sys.getString("country");
-//
-//
-//                /* Populating extracted data into our views */
-//
-//
-//                resultView.setText(windSpeed);
-//                /* Views populated, Hiding the loader, Showing the main design */
-//                findViewById(R.id.loader).setVisibility(View.GONE);
-//
-//
-//            } catch (JSONException e) {
-//                findViewById(R.id.loader).setVisibility(View.GONE);
-//                findViewById(R.id.errorText).setVisibility(View.VISIBLE);
-//            }
-//
-//        }
-//    }
+
+    protected  class weatherTask extends AsyncTask<String, Void, String> {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+        }
+
+        protected String doInBackground(String... args) {
+            Log.d(TAG, "INSIDE doInBackground method");
+            String response = HttpRequest.excuteGet("https://api.openweathermap.org/data/2.5/weather?q=" + CITY + "&units=metric&appid=" + API);
+            return response;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            Log.d(TAG, "INSIDE onPostExecute method");
+
+            try {
+                JSONObject jsonObj = new JSONObject(result);
+                Log.d("data from API", String.valueOf(jsonObj));
+                JSONObject main = jsonObj.getJSONObject("main");
+                JSONObject sys = jsonObj.getJSONObject("sys");
+                JSONObject wind = jsonObj.getJSONObject("wind");
+                JSONObject weather = jsonObj.getJSONArray("weather").getJSONObject(0);
+
+
+                address = jsonObj.getString("name") + ", " + sys.getString("country");
+                temp = main.getString("temp");
+                icon = weather.getString("icon");
+
+                System.out.println(address + " " + temp + " " + icon);
+
+
+                //populating the ArrayList
+                setUpCitiesItems(address, getTemperatureUnit(temp), icon);
+
+                //ADDITIONAL INFO
+
+                String pressure = main.getString("pressure");
+                String humidity = main.getString("humidity");
+                Long sunrise = sys.getLong("sunrise");
+                Long sunset = sys.getLong("sunset");
+                String windSpeed = wind.getString("speed");
+                String weatherDescription = weather.getString("description");
+
+
+
+
+
+            } catch (JSONException e) {
+            e.printStackTrace();
+            }
+
+        }
+    }
 
 
 }
